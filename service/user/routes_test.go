@@ -45,6 +45,7 @@ func TestUserServiceHandlers(t *testing.T) {
 		payload := types.RegisterUserPayload{
 			FirstName: "John",
 			LastName:  "Smith",
+			Username:  "johnsmith",
 			Email:     "foo@email.com",
 			Password:  "password",
 		}
@@ -70,6 +71,10 @@ func TestUserServiceHandlers(t *testing.T) {
 type mockUserStore struct{}
 
 func (m *mockUserStore) GetUserByEmail(email string) (*types.User, error) {
+	return nil, fmt.Errorf("user not found")
+}
+
+func (m *mockUserStore) GetUserByUsername(username string) (*types.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 

@@ -69,8 +69,14 @@ func (h *Handler) HandleRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 	}
 
+	// Check if username is already taken
+	_, err := h.store.GetUserByUsername(payload.Username)
+	if err == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("username %s already taken", payload.Username))
+	}
+
 	// Check if user exists
-	_, err := h.store.GetUserByEmail(payload.Email)
+	_, err = h.store.GetUserByEmail(payload.Email)
 	if err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email))
 	}
@@ -84,6 +90,7 @@ func (h *Handler) HandleRegister(c echo.Context) error {
 	err = h.store.CreateUser(types.User{
 		FirstName: payload.FirstName,
 		LastName:  payload.LastName,
+		Username:  payload.Username,
 		Email:     payload.Email,
 		Password:  hashedPassword,
 	})

@@ -56,6 +56,27 @@ func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
 	return user, nil
 }
 
+func (s *Store) GetUserByUsername(username string) (*types.User, error) {
+	rows, err := s.db.Query("SELECT * FROM users WHERE username = ?", username)
+	if err != nil {
+		return nil, err
+	}
+
+	u := new(types.User)
+	for rows.Next() {
+		u, err = scanRowIntoUser(rows)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if u.ID == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	return u, nil
+}
+
 func (s *Store) GetUserByID(id int) (*types.User, error) {
 	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
 	if err != nil {
@@ -78,7 +99,7 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(u types.User) error {
-	_, err := s.db.Exec("INSERT INTO users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)", u.FirstName, u.LastName, u.Email, u.Password)
+	_, err := s.db.Exec("INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)", u.FirstName, u.LastName, u.Username, u.Email, u.Password)
 	if err != nil {
 		return err
 	}
