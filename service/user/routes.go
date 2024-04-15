@@ -24,6 +24,7 @@ func (h *Handler) RegisterRoutes(router *echo.Group) {
 	router.POST("/login", h.HandleLogin)
 	router.POST("/register", h.HandleRegister)
 	router.PUT("/self", auth.WithJWTAuth(h.HandleUpdateSelf, h.store))
+	router.GET("/self", auth.WithJWTAuth(h.HandleGetSelf, h.store))
 }
 
 func (h *Handler) HandleLogin(c echo.Context) error {
@@ -128,4 +129,17 @@ func (h *Handler) HandleUpdateSelf(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "User Updated")
+}
+
+func (h *Handler) HandleGetSelf(c echo.Context) error {
+	userId := auth.GetUserIDFromContext(c.Request().Context())
+
+	u, err := h.store.GetUserByID(userId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	u.Password = ""
+
+	return c.JSON(http.StatusOK, u)
 }
