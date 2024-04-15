@@ -23,6 +23,7 @@ func NewHandler(store types.UserStore) *Handler {
 func (h *Handler) RegisterRoutes(router *echo.Group) {
 	router.POST("/login", h.HandleLogin)
 	router.POST("/register", h.HandleRegister)
+	router.PUT("/self", auth.WithJWTAuth(h.HandleUpdateSelf, h.store))
 }
 
 func (h *Handler) HandleLogin(c echo.Context) error {
@@ -69,14 +70,8 @@ func (h *Handler) HandleRegister(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 	}
 
-	// Check if username is already taken
-	_, err := h.store.GetUserByUsername(payload.Username)
-	if err == nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("username %s already taken", payload.Username))
-	}
-
 	// Check if user exists
-	_, err = h.store.GetUserByEmail(payload.Email)
+	_, err := h.store.GetUserByEmail(payload.Email)
 	if err == nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email))
 	}
@@ -88,11 +83,8 @@ func (h *Handler) HandleRegister(c echo.Context) error {
 
 	// Create user
 	err = h.store.CreateUser(types.User{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Username:  payload.Username,
-		Email:     payload.Email,
-		Password:  hashedPassword,
+		Email:    payload.Email,
+		Password: hashedPassword,
 	})
 
 	if err != nil {
@@ -100,4 +92,40 @@ func (h *Handler) HandleRegister(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, "User Created")
+}
+
+func (h *Handler) HandleUpdateSelf(c echo.Context) error {
+	userId := auth.GetUserIDFromContext(c.Request().Context())
+
+	// Parse payload
+	var payload types.UpdateUserPayload
+	if err := utils.ParseJSON(c, &payload); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// Validate payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+	}
+
+	// Get Self
+	u, err := h.store.GetUserByID(userId)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if payload.Username != "" && payload.Username != u.Username {
+		_, err := h.store.GetUserByUsername(payload.Username)
+		if err == nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("username %s already exists", payload.Username))
+		}
+	}
+
+	err = h.store.UpdateUser(userId, payload)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, "User Updated")
 }

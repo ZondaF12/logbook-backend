@@ -18,10 +18,8 @@ func TestUserServiceHandlers(t *testing.T) {
 
 	t.Run("Should fail if the user payload is invalid", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
-			FirstName: "John",
-			LastName:  "Smith",
-			Email:     "invalid",
-			Password:  "password",
+			Email:    "invalid",
+			Password: "password",
 		}
 		marshalled, _ := json.Marshal(payload)
 
@@ -43,11 +41,8 @@ func TestUserServiceHandlers(t *testing.T) {
 
 	t.Run("should correctlty register a user", func(t *testing.T) {
 		payload := types.RegisterUserPayload{
-			FirstName: "John",
-			LastName:  "Smith",
-			Username:  "johnsmith",
-			Email:     "foo@email.com",
-			Password:  "password",
+			Email:    "foo@email.com",
+			Password: "password",
 		}
 		marshalled, _ := json.Marshal(payload)
 
@@ -83,5 +78,9 @@ func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 }
 
 func (m *mockUserStore) CreateUser(user types.User) error {
+	return nil
+}
+
+func (m *mockUserStore) UpdateUser(userId int, user types.UpdateUserPayload) error {
 	return nil
 }

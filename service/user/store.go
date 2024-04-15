@@ -43,10 +43,12 @@ func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
 
 	err := rows.Scan(
 		&user.ID,
-		&user.FirstName,
-		&user.LastName,
+		&user.Name,
+		&user.Username,
 		&user.Email,
 		&user.Password,
+		&user.Bio,
+		&user.Public,
 		&user.CreatedAt,
 	)
 	if err != nil {
@@ -99,7 +101,16 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(u types.User) error {
-	_, err := s.db.Exec("INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)", u.FirstName, u.LastName, u.Username, u.Email, u.Password)
+	_, err := s.db.Exec("INSERT INTO users (email, password) VALUES (?, ?)", u.Email, u.Password)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) UpdateUser(userId int, u types.UpdateUserPayload) error {
+	_, err := s.db.Exec("UPDATE users SET name = ?, bio = ?, username = ?, public = ? WHERE id = ?", u.Name, u.Bio, u.Username, u.Public, userId)
 	if err != nil {
 		return err
 	}

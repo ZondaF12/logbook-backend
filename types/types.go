@@ -6,15 +6,13 @@ type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
 	GetUserByUsername(username string) (*User, error)
 	GetUserByID(id int) (*User, error)
+	UpdateUser(userId int, payload UpdateUserPayload) error
 	CreateUser(User) error
 }
 
 type RegisterUserPayload struct {
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
-	Username  string `json:"username" validate:"required"`
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=3,max=100"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=3,max=100"`
 }
 
 type LoginUserPayload struct {
@@ -22,10 +20,16 @@ type LoginUserPayload struct {
 	Password string `json:"password" validate:"required"`
 }
 
+type UpdateUserPayload struct {
+	Name     string `json:"name" validate:"required"`
+	Username string `json:"username" validate:"required"`
+	Bio      string `json:"bio,omitempty" validate:"omitempty"`
+	Public   bool   `json:"public"`
+}
+
 type User struct {
 	ID        int       `json:"id"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
+	Name      string    `json:"name"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
