@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS `followers` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `follower_id` INT UNSIGNED NOT NULL,
+  `following_id` INT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  PRIMARY KEY (id),
+  FOREIGN KEY (follower_id) REFERENCES auth(id),
+  FOREIGN KEY (following_id) REFERENCES auth(id)
+)

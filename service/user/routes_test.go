@@ -17,7 +17,7 @@ func TestUserServiceHandlers(t *testing.T) {
 	handler := NewHandler(userStore)
 
 	t.Run("Should fail if the user payload is invalid", func(t *testing.T) {
-		payload := types.RegisterUserPayload{
+		payload := types.RegisterAuthPayload{
 			Email:    "invalid",
 			Password: "password",
 		}
@@ -40,7 +40,7 @@ func TestUserServiceHandlers(t *testing.T) {
 	})
 
 	t.Run("should correctlty register a user", func(t *testing.T) {
-		payload := types.RegisterUserPayload{
+		payload := types.RegisterAuthPayload{
 			Email:    "foo@email.com",
 			Password: "password",
 		}
@@ -69,18 +69,10 @@ func (m *mockUserStore) GetUserByEmail(email string) (*types.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 
-func (m *mockUserStore) GetUserByUsername(username string) (*types.User, error) {
-	return nil, fmt.Errorf("user not found")
-}
-
 func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
 	return nil, nil
 }
 
 func (m *mockUserStore) CreateUser(user types.User) error {
-	return nil
-}
-
-func (m *mockUserStore) UpdateUser(userId int, user types.UpdateUserPayload) error {
 	return nil
 }

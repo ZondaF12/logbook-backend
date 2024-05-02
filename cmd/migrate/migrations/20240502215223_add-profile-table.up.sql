@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS `profiles` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` INT UNSIGNED NOT NULL,
+  `username` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `bio` VARCHAR(255) DEFAULT "",
+  `avatar` VARCHAR(255) DEFAULT "",
+  `public` BOOLEAN NOT NULL DEFAULT TRUE,
+
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES auth(id),
+  UNIQUE KEY (username)
+);

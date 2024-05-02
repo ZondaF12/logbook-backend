@@ -18,7 +18,7 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) GetUserByEmail(email string) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE email = ?", email)
+	rows, err := s.db.Query("SELECT * FROM auth WHERE email = ?", email)
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +43,8 @@ func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
 
 	err := rows.Scan(
 		&user.ID,
-		&user.Name,
-		&user.Username,
 		&user.Email,
 		&user.Password,
-		&user.Bio,
-		&user.Public,
 		&user.CreatedAt,
 	)
 	if err != nil {
@@ -59,7 +55,7 @@ func scanRowIntoUser(rows *sql.Rows) (*types.User, error) {
 }
 
 func (s *Store) GetUserByUsername(username string) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE username = ?", username)
+	rows, err := s.db.Query("SELECT * FROM auth WHERE username = ?", username)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +76,7 @@ func (s *Store) GetUserByUsername(username string) (*types.User, error) {
 }
 
 func (s *Store) GetUserByID(id int) (*types.User, error) {
-	rows, err := s.db.Query("SELECT * FROM users WHERE id = ?", id)
+	rows, err := s.db.Query("SELECT * FROM auth WHERE id = ?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -101,16 +97,7 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(u types.User) error {
-	_, err := s.db.Exec("INSERT INTO users (email, password) VALUES (?, ?)", u.Email, u.Password)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Store) UpdateUser(userId int, u types.UpdateUserPayload) error {
-	_, err := s.db.Exec("UPDATE users SET name = ?, bio = ?, username = ?, public = ? WHERE id = ?", u.Name, u.Bio, u.Username, u.Public, userId)
+	_, err := s.db.Exec("INSERT INTO auth (email, password) VALUES (?, ?)", u.Email, u.Password)
 	if err != nil {
 		return err
 	}
