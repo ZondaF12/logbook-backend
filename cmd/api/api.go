@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ZondaF12/logbook-backend/service/follower"
 	"github.com/ZondaF12/logbook-backend/service/profile"
 	"github.com/ZondaF12/logbook-backend/service/user"
 	"github.com/labstack/echo/v4"
@@ -33,6 +34,10 @@ func (s *APIServer) Start() error {
 	profileStore := profile.NewStore(s.db)
 	profileHandler := profile.NewHandler(profileStore, userStore)
 	profileHandler.RegisterRoutes(subrouter)
+
+	followStore := follower.NewStore(s.db)
+	followHandler := follower.NewHandler(followStore, userStore)
+	followHandler.RegisterRoutes(subrouter)
 
 	log.Println("Starting server on", s.addr)
 	return http.ListenAndServe(s.addr, e)

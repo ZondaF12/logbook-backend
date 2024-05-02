@@ -13,6 +13,12 @@ type ProfileStore interface {
 	CreateProfile(Profile) error
 }
 
+type FollowerStore interface {
+	FollowUser(followerId, followingId int) error
+	UnfollowUser(followerId, followingId int) error
+	GetFollower(followerId, followingId int) (*Follower, error)
+}
+
 type VehicleStore interface {
 	GetVehicleByID(id int) (*Vehicle, error)
 	GetAuthenticatedUserVehicles(userID int) ([]Vehicle, error)
@@ -62,6 +68,17 @@ type Profile struct {
 type CreateProfilePayload struct {
 	Username string `json:"username" validate:"required,min=3,max=100"`
 	Name     string `json:"name" validate:"required,min=3,max=100"`
+}
+
+type Follower struct {
+	ID          int       `json:"id"`
+	FollowerID  int       `json:"follower_i"`
+	FollowingID int       `json:"following_id"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type FollowUserPayload struct {
+	UserID int `json:"user_id" validate:"required"`
 }
 
 type Vehicle struct {
