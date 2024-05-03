@@ -21,8 +21,10 @@ type FollowerStore interface {
 
 type VehicleStore interface {
 	GetVehicleByID(id int) (*Vehicle, error)
-	GetAuthenticatedUserVehicles(userID int) ([]Vehicle, error)
-	GetVehicleByRegistration(registration string) (*Vehicle, error)
+	GetAuthenticatedUserVehicles(userID int) ([]*Vehicle, error)
+	GetVehicleByRegistration(userId int, registration string) (*Vehicle, error)
+	AddUserVehicle(userID int, vehicle NewVehiclePostData) error
+	CheckVehicleAdded(userId int, registration string) (bool, error)
 }
 
 type RegisterAuthPayload struct {
@@ -82,22 +84,21 @@ type FollowUserPayload struct {
 }
 
 type Vehicle struct {
-	ID            string   `json:"id"`
-	UserID        string   `json:"user_id"`
-	Registration  string   `json:"registration"`
-	Color         string   `json:"color"`
-	Description   string   `json:"description"`
-	EngineSize    uint16   `json:"engine_size"`
-	Images        []string `json:"images"`
-	InsuranceDate string   `json:"insurance_date"`
-	Make          string   `json:"make"`
-	Model         string   `json:"model"`
-	MotDate       string   `json:"mot_date"`
-	Nickname      string   `json:"nickname"`
-	Registered    string   `json:"registered"`
-	ServiceDate   string   `json:"service_date"`
-	TaxDate       string   `json:"tax_date"`
-	Year          uint16   `json:"year"`
+	ID            string `json:"id,omitempty"`
+	UserID        string `json:"user_id,omitempty"`
+	Registration  string `json:"registration,omitempty"`
+	Color         string `json:"color,omitempty"`
+	Description   string `json:"description,omitempty"`
+	EngineSize    uint16 `json:"engine_size,omitempty"`
+	Make          string `json:"make,omitempty"`
+	Model         string `json:"model,omitempty"`
+	MotDate       string `json:"mot_date,omitempty"`
+	Registered    string `json:"registered,omitempty"`
+	InsuranceDate string `json:"insurance_date,omitempty"`
+	ServiceDate   string `json:"service_date,omitempty"`
+	TaxDate       string `json:"tax_date,omitempty"`
+	Year          uint16 `json:"year,omitempty"`
+	Mileage       uint32 `json:"mileage,omitempty"`
 }
 
 type NewVehicle struct {
@@ -110,11 +111,11 @@ type NewVehicle struct {
 	Make          string   `json:"make"`
 	Model         string   `json:"model"`
 	MotDate       string   `json:"mot_date"`
-	Nickname      string   `json:"nickname"`
 	Registered    string   `json:"registered"`
 	ServiceDate   string   `json:"service_date"`
 	TaxDate       string   `json:"tax_date"`
 	Year          uint16   `json:"year"`
+	Mileage       uint32   `json:"mileage"`
 }
 
 type VehicleData struct {
@@ -162,8 +163,14 @@ type MotTests struct {
 
 type NewVehiclePostData struct {
 	Registration string   `json:"registration"`
-	Images       []string `json:"images"`
-	Nickname     string   `json:"nickname"`
 	Model        string   `json:"model"`
 	Description  string   `json:"description"`
+	Images       []string `json:"images"`
+	Make         string   `json:"make"`
+	Year         uint16   `json:"year"`
+	EngineSize   uint16   `json:"engine_size"`
+	Color        string   `json:"color"`
+	Registered   string   `json:"registered"`
+	TaxDate      string   `json:"tax_date"`
+	MotDate      string   `json:"mot_date"`
 }
