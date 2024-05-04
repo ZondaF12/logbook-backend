@@ -11,6 +11,7 @@ import (
 	"github.com/ZondaF12/logbook-backend/service/user"
 	"github.com/ZondaF12/logbook-backend/service/vehicle"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type APIServer struct {
@@ -27,6 +28,9 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 
 func (s *APIServer) Start() error {
 	e := echo.New()
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "method=${method}, uri=${uri}, status=${status}\n",
+	}))
 	subrouter := e.Group("/api/v1")
 
 	userStore := user.NewStore(s.db)
