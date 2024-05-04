@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
   `service_date` VARCHAR(255) DEFAULT "",
   `description` VARCHAR(255) DEFAULT "",
   `milage` INT UNSIGNED DEFAULT 0,
+  `nickname` VARCHAR(255) DEFAULT "",
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 
   PRIMARY KEY (id),

@@ -55,6 +55,8 @@ func scanRowIntoVehicle(rows *sql.Rows) (*types.Vehicle, error) {
 		&vehicle.ServiceDate,
 		&vehicle.Description,
 		&vehicle.Mileage,
+		&vehicle.Nickname,
+		&vehicle.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
@@ -115,7 +117,7 @@ func (s *Store) GetVehicleByID(vehicleId int) (*types.Vehicle, error) {
 }
 
 func (s *Store) AddUserVehicle(userId int, vehicle types.NewVehiclePostData) error {
-	_, err := s.db.Exec("INSERT INTO vehicles (user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0)
+	_, err := s.db.Exec("INSERT INTO vehicles (user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
 
 	if err != nil {
 		fmt.Println(err)

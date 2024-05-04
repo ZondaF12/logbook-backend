@@ -83,38 +83,39 @@ type FollowUserPayload struct {
 	UserID int `json:"user_id" validate:"required"`
 }
 
-type Vehicle struct {
-	ID            string `json:"id,omitempty"`
-	UserID        string `json:"user_id,omitempty"`
-	Registration  string `json:"registration,omitempty"`
-	Color         string `json:"color,omitempty"`
-	Description   string `json:"description,omitempty"`
-	EngineSize    uint16 `json:"engine_size,omitempty"`
-	Make          string `json:"make,omitempty"`
-	Model         string `json:"model,omitempty"`
-	MotDate       string `json:"mot_date,omitempty"`
-	Registered    string `json:"registered,omitempty"`
-	InsuranceDate string `json:"insurance_date,omitempty"`
-	ServiceDate   string `json:"service_date,omitempty"`
-	TaxDate       string `json:"tax_date,omitempty"`
-	Year          uint16 `json:"year,omitempty"`
-	Mileage       uint32 `json:"mileage,omitempty"`
+type NewVehiclePostData struct {
+	Registration string   `json:"registration"`
+	Model        string   `json:"model"`
+	Description  string   `json:"description"`
+	Images       []string `json:"images"`
+	Make         string   `json:"make"`
+	Year         uint16   `json:"year"`
+	EngineSize   uint16   `json:"engine_size"`
+	Color        string   `json:"color"`
+	Registered   string   `json:"registered"`
+	TaxDate      string   `json:"tax_date"`
+	MotDate      string   `json:"mot_date"`
+	Nickname     string   `json:"nickname"`
 }
 
-type NewVehicle struct {
-	Registration  string `json:"registration"`
-	Color         string `json:"color"`
-	Description   string `json:"description"`
-	EngineSize    uint16 `json:"engine_size"`
-	InsuranceDate string `json:"insurance_date"`
-	Make          string `json:"make"`
-	Model         string `json:"model"`
-	MotDate       string `json:"mot_date"`
-	Registered    string `json:"registered"`
-	ServiceDate   string `json:"service_date"`
-	TaxDate       string `json:"tax_date"`
-	Year          uint16 `json:"year"`
-	Mileage       uint32 `json:"mileage"`
+type Vehicle struct {
+	ID            string    `json:"id,omitempty"`
+	UserID        string    `json:"user_id,omitempty"`
+	Registration  string    `json:"registration,omitempty"`
+	Color         string    `json:"color,omitempty"`
+	Description   string    `json:"description,omitempty"`
+	EngineSize    uint16    `json:"engine_size,omitempty"`
+	Make          string    `json:"make,omitempty"`
+	Model         string    `json:"model,omitempty"`
+	MotDate       string    `json:"mot_date,omitempty"`
+	Registered    string    `json:"registered,omitempty"`
+	InsuranceDate string    `json:"insurance_date,omitempty"`
+	ServiceDate   string    `json:"service_date,omitempty"`
+	TaxDate       string    `json:"tax_date,omitempty"`
+	Year          uint16    `json:"year,omitempty"`
+	Mileage       uint32    `json:"mileage,omitempty"`
+	Nickname      string    `json:"nickname,omitempty"`
+	CreatedAt     time.Time `json:"created_at,omitempty"`
 }
 
 type VehicleInfoRequestData struct {
@@ -170,18 +171,4 @@ type MotTests struct {
 	OdometerUnit   string `json:"odometerUnit"`
 	MotTestNumber  string `json:"motTestNumber"`
 	RfrAndComments []any  `json:"rfrAndComments"`
-}
-
-type NewVehiclePostData struct {
-	Registration string   `json:"registration"`
-	Model        string   `json:"model"`
-	Description  string   `json:"description"`
-	Images       []string `json:"images"`
-	Make         string   `json:"make"`
-	Year         uint16   `json:"year"`
-	EngineSize   uint16   `json:"engine_size"`
-	Color        string   `json:"color"`
-	Registered   string   `json:"registered"`
-	TaxDate      string   `json:"tax_date"`
-	MotDate      string   `json:"mot_date"`
 }
