@@ -18,6 +18,9 @@ type Config struct {
 	DBName                 string
 	JWTExpirationInSeconds int64
 	JWTSecret              string
+
+	DVLAApiKey string
+	DVSAApiKey string
 }
 
 var Envs = InitConfig()
@@ -34,6 +37,8 @@ func InitConfig() Config {
 		DBName:                 getEnv("DB_NAME", "logbook"),
 		JWTExpirationInSeconds: getEnvAsInt("JWT_EXPIRATION", 3600*24*7),
 		JWTSecret:              getEnv("JWT_SECRET", "temporary_secret_key?"),
+		DVLAApiKey:             getEnv("DVLA_API_KEY", ""),
+		DVSAApiKey:             getEnv("DVSA_MOT_API_KEY", ""),
 	}
 }
 

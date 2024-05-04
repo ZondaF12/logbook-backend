@@ -102,20 +102,31 @@ type Vehicle struct {
 }
 
 type NewVehicle struct {
-	Registration  string   `json:"registration"`
-	Color         string   `json:"color"`
-	Description   string   `json:"description"`
-	EngineSize    uint16   `json:"engine_size"`
-	Images        []string `json:"images"`
-	InsuranceDate string   `json:"insurance_date"`
-	Make          string   `json:"make"`
-	Model         string   `json:"model"`
-	MotDate       string   `json:"mot_date"`
-	Registered    string   `json:"registered"`
-	ServiceDate   string   `json:"service_date"`
-	TaxDate       string   `json:"tax_date"`
-	Year          uint16   `json:"year"`
-	Mileage       uint32   `json:"mileage"`
+	Registration  string `json:"registration"`
+	Color         string `json:"color"`
+	Description   string `json:"description"`
+	EngineSize    uint16 `json:"engine_size"`
+	InsuranceDate string `json:"insurance_date"`
+	Make          string `json:"make"`
+	Model         string `json:"model"`
+	MotDate       string `json:"mot_date"`
+	Registered    string `json:"registered"`
+	ServiceDate   string `json:"service_date"`
+	TaxDate       string `json:"tax_date"`
+	Year          uint16 `json:"year"`
+	Mileage       uint32 `json:"mileage"`
+}
+
+type VehicleInfoRequestData struct {
+	Registration string `json:"registration"`
+	Color        string `json:"color"`
+	EngineSize   uint16 `json:"engine_size"`
+	Make         string `json:"make"`
+	Model        string `json:"model"`
+	TaxDate      string `json:"tax_date"`
+	MotDate      string `json:"mot_date"`
+	Registered   string `json:"registered"`
+	Year         uint16 `json:"year"`
 }
 
 type VehicleData struct {
