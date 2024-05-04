@@ -76,3 +76,12 @@ func (s *Store) CreateProfile(u types.Profile) error {
 
 	return nil
 }
+
+func (s *Store) UpdateAvatar(userId int, avatar string) error {
+	_, err := s.db.Exec("UPDATE profiles SET avatar = ? WHERE user_id = ?", avatar, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -11,6 +11,7 @@ type UserStore interface {
 type ProfileStore interface {
 	GetProfileByUserId(userId int) (*Profile, error)
 	CreateProfile(Profile) error
+	UpdateAvatar(userId int, avatar string) error
 }
 
 type FollowerStore interface {

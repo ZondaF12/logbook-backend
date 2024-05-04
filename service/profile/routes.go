@@ -1,12 +1,18 @@
 package profile
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/ZondaF12/logbook-backend/service/auth"
 	"github.com/ZondaF12/logbook-backend/types"
 	"github.com/ZondaF12/logbook-backend/utils"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
@@ -27,6 +33,7 @@ func (h *Handler) RegisterRoutes(router *echo.Group) {
 	router.POST("/self", auth.WithJWTAuth(h.HandlerCreateProfile, h.userStore))
 	router.PUT("/self", auth.WithJWTAuth(h.HandleUpdateProfile, h.userStore))
 	router.GET("/self", auth.WithJWTAuth(h.HandleGetProfile, h.userStore))
+	router.POST("/self/avatar", auth.WithJWTAuth(h.HandleUploadAvatar, h.userStore))
 }
 
 func (h *Handler) HandlerCreateProfile(c echo.Context) error {
@@ -81,4 +88,51 @@ func (h *Handler) HandleGetProfile(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, u)
+}
+
+func (h *Handler) HandleUploadAvatar(c echo.Context) error {
+	// Get user ID from JWT
+	userId := auth.GetUserIDFromContext(c.Request().Context())
+
+	// Get avatar file
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	src, err := file.Open()
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	defer src.Close()
+
+	// Upload avatar to S3
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, "Error uploading avatar")
+	}
+
+	client := s3.NewFromConfig(cfg)
+
+	uploader := manager.NewUploader(client)
+	result, err := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String("logbook-app"),
+		Key:    aws.String(fmt.Sprintf("avatars/user/%d/%s", userId, file.Filename)),
+		Body:   src,
+	})
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, "Error uploading avatar")
+	}
+
+	// Update user avatar
+	err = h.store.UpdateAvatar(userId, result.Location)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, "Error setting avatar in db")
+	}
+
+	return c.JSON(http.StatusOK, result.Location)
 }
