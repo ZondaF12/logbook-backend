@@ -19,7 +19,7 @@ type FollowerStore interface {
 	GetFollower(followerId, followingId int) (*Follower, error)
 }
 
-type VehicleStore interface {
+type GarageStore interface {
 	GetVehicleByID(id int) (*Vehicle, error)
 	GetAuthenticatedUserVehicles(userID int) ([]*Vehicle, error)
 	GetVehicleByRegistration(userId int, registration string) (*Vehicle, error)

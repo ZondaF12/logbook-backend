@@ -42,6 +42,7 @@ func WithJWTAuth(next echo.HandlerFunc, store types.UserStore) echo.HandlerFunc 
 		// Validate JWT Token
 		token, err := validateToken(tokenString)
 		if err != nil {
+			fmt.Println(tokenString)
 			log.Printf("error validating token: %v", err)
 			return permissionDenied()
 		}

@@ -1,4 +1,4 @@
-package vehicle
+package garage
 
 import (
 	"database/sql"

@@ -1,4 +1,4 @@
-package vehicle
+package garage
 
 import (
 	"fmt"
@@ -12,11 +12,11 @@ import (
 )
 
 type Handler struct {
-	store     types.VehicleStore
+	store     types.GarageStore
 	userStore types.UserStore
 }
 
-func NewHandler(store types.VehicleStore, userStore types.UserStore) *Handler {
+func NewHandler(store types.GarageStore, userStore types.UserStore) *Handler {
 	return &Handler{
 		store:     store,
 		userStore: userStore,
@@ -24,14 +24,14 @@ func NewHandler(store types.VehicleStore, userStore types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *echo.Group) {
-	router.POST("/vehicle", auth.WithJWTAuth(h.HandleAddVehicle, h.userStore))
-	router.GET("/vehicle", auth.WithJWTAuth(h.HandleGetAllVehicles, h.userStore))
-	router.GET("/vehicle/:registration", auth.WithJWTAuth(h.HandleGetVehicleByRegistration, h.userStore))
-	router.PUT("/vehicle/:registration", auth.WithJWTAuth(h.HandleUpdateVehicle, h.userStore))
-	router.GET("/vehicle/:registration/exists", auth.WithJWTAuth(h.HandleGetVehicleExists, h.userStore))
+	router.POST("/garage/vehicle", auth.WithJWTAuth(h.HandleAddVehicleToGarage, h.userStore))
+	router.GET("/garage", auth.WithJWTAuth(h.HandleGetUserGarage, h.userStore))
+	router.GET("/garage/vehicle/:registration", auth.WithJWTAuth(h.HandleGetVehicleByRegistration, h.userStore))
+	router.PUT("/garage/vehicle/:registration", auth.WithJWTAuth(h.HandleUpdateVehicle, h.userStore))
+	router.GET("/garage/vehicle/:registration/exists", auth.WithJWTAuth(h.HandleCheckVehicleExistsInGarage, h.userStore))
 }
 
-func (h *Handler) HandleAddVehicle(c echo.Context) error {
+func (h *Handler) HandleAddVehicleToGarage(c echo.Context) error {
 	// Parse payload
 	var payload types.NewVehiclePostData
 	if err := utils.ParseJSON(c, &payload); err != nil {
@@ -69,7 +69,7 @@ func (h *Handler) HandleAddVehicle(c echo.Context) error {
 	return c.JSON(http.StatusCreated, "Vehicle Added")
 }
 
-func (h *Handler) HandleGetAllVehicles(c echo.Context) error {
+func (h *Handler) HandleGetUserGarage(c echo.Context) error {
 	// Get user ID from JWT
 	userId := auth.GetUserIDFromContext(c.Request().Context())
 
@@ -99,7 +99,7 @@ func (h *Handler) HandleUpdateVehicle(c echo.Context) error {
 	return nil
 }
 
-func (h *Handler) HandleGetVehicleExists(c echo.Context) error {
+func (h *Handler) HandleCheckVehicleExistsInGarage(c echo.Context) error {
 	registration := c.Param("registration")
 
 	// Get user ID from JWT
