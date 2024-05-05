@@ -54,7 +54,10 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"token": token, "userId": strconv.Itoa(u.ID)})
+	c.Response().Header().Set("Access-Control-Expose-Headers", "X-Logbook-Token")
+	c.Response().Header().Set("X-Logbook-Token", token)
+
+	return c.JSON(http.StatusOK, map[string]string{"userId": strconv.Itoa(u.ID)})
 }
 
 func (h *Handler) HandleRegister(c echo.Context) error {
