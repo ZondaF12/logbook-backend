@@ -31,7 +31,9 @@ func (s *Store) GetAuthenticatedUserVehicles(userId int) ([]*types.Vehicle, erro
 		FROM
 			vehicles v
 		WHERE
-			v.user_id = ?`, userId)
+			v.user_id = ?
+		ORDER BY
+			v.created_at`, userId)
 	if err != nil {
 		return nil, err
 	}
