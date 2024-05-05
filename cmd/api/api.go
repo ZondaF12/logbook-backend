@@ -7,6 +7,7 @@ import (
 
 	"github.com/ZondaF12/logbook-backend/service/follower"
 	"github.com/ZondaF12/logbook-backend/service/garage"
+	"github.com/ZondaF12/logbook-backend/service/image"
 	"github.com/ZondaF12/logbook-backend/service/profile"
 	"github.com/ZondaF12/logbook-backend/service/user"
 	"github.com/ZondaF12/logbook-backend/service/vehicle"
@@ -45,8 +46,10 @@ func (s *APIServer) Start() error {
 	followHandler := follower.NewHandler(followStore, userStore)
 	followHandler.RegisterRoutes(subrouter)
 
+	imageStore := image.NewStore(s.db)
+
 	garageStore := garage.NewStore(s.db)
-	garageHandler := garage.NewHandler(garageStore, userStore)
+	garageHandler := garage.NewHandler(garageStore, userStore, imageStore)
 	garageHandler.RegisterRoutes(subrouter)
 
 	vehicleHandler := vehicle.NewHandler(userStore)

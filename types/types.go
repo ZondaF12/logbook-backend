@@ -24,8 +24,12 @@ type GarageStore interface {
 	GetVehicleByID(id int) (*Vehicle, error)
 	GetAuthenticatedUserVehicles(userID int) ([]*Vehicle, error)
 	GetVehicleByRegistration(userId int, registration string) (*Vehicle, error)
-	AddUserVehicle(userID int, vehicle NewVehiclePostData) error
+	AddUserVehicle(userID int, vehicle NewVehiclePostData) (int64, error)
 	CheckVehicleAdded(userId int, registration string) (bool, error)
+}
+
+type ImageStore interface {
+	AddNewImage(image Image) error
 }
 
 type RegisterAuthPayload struct {
@@ -117,6 +121,7 @@ type Vehicle struct {
 	Mileage       uint32    `json:"mileage,omitempty"`
 	Nickname      string    `json:"nickname,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
+	Images        string    `json:"images,omitempty"`
 }
 
 type VehicleInfoRequestData struct {
@@ -172,4 +177,14 @@ type MotTests struct {
 	OdometerUnit   string `json:"odometerUnit"`
 	MotTestNumber  string `json:"motTestNumber"`
 	RfrAndComments []any  `json:"rfrAndComments"`
+}
+
+type Image struct {
+	ID         int       `json:"id"`
+	Filename   string    `json:"filename"`
+	FileType   string    `json:"file_type"`
+	S3Location string    `json:"s3_location"`
+	UploadedAt time.Time `json:"uploaded_at"`
+	UserID     int       `json:"user_id,omitempty"`
+	VehicleID  int       `json:"vehicle_id,omitempty"`
 }

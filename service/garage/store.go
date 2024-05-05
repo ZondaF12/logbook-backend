@@ -18,7 +18,20 @@ func NewStore(db *sql.DB) *Store {
 }
 
 func (s *Store) GetAuthenticatedUserVehicles(userId int) ([]*types.Vehicle, error) {
-	rows, err := s.db.Query("SELECT * FROM vehicles WHERE user_id = ?", userId)
+	rows, err := s.db.Query(`SELECT
+			v.*,
+			(
+			SELECT
+				GROUP_CONCAT(i.s3_location)
+			FROM
+				images i
+			WHERE
+				i.vehicle_id = v.id
+			) AS images
+		FROM
+			vehicles v
+		WHERE
+			v.user_id = ?`, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +70,7 @@ func scanRowIntoVehicle(rows *sql.Rows) (*types.Vehicle, error) {
 		&vehicle.Mileage,
 		&vehicle.Nickname,
 		&vehicle.CreatedAt,
+		&vehicle.Images,
 	)
 	if err != nil {
 		return nil, err
@@ -116,13 +130,18 @@ func (s *Store) GetVehicleByID(vehicleId int) (*types.Vehicle, error) {
 	return vehicle, nil
 }
 
-func (s *Store) AddUserVehicle(userId int, vehicle types.NewVehiclePostData) error {
-	_, err := s.db.Exec("INSERT INTO vehicles (user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
+func (s *Store) AddUserVehicle(userId int, vehicle types.NewVehiclePostData) (int64, error) {
+	res, err := s.db.Exec("INSERT INTO vehicles (user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
 
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return 0, err
 	}
 
-	return nil
+	vehicleId, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return vehicleId, nil
 }
