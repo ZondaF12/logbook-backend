@@ -3,6 +3,7 @@ package user
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/ZondaF12/logbook-backend/config"
 	"github.com/ZondaF12/logbook-backend/service/auth"
@@ -53,7 +54,7 @@ func (h *Handler) HandleLogin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]string{"token": token})
+	return c.JSON(http.StatusOK, map[string]string{"token": token, "userId": strconv.Itoa(u.ID)})
 }
 
 func (h *Handler) HandleRegister(c echo.Context) error {
