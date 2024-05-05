@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/ZondaF12/logbook-backend/service/auth"
 	"github.com/ZondaF12/logbook-backend/types"
@@ -34,6 +35,7 @@ func (h *Handler) RegisterRoutes(router *echo.Group) {
 	router.PUT("/self", auth.WithJWTAuth(h.HandleUpdateProfile, h.userStore))
 	router.GET("/self", auth.WithJWTAuth(h.HandleGetProfile, h.userStore))
 	router.POST("/self/avatar", auth.WithJWTAuth(h.HandleUploadAvatar, h.userStore))
+	router.GET("/user/:id", auth.WithJWTAuth(h.HandleGetUserById, h.userStore))
 }
 
 func (h *Handler) HandlerCreateProfile(c echo.Context) error {
@@ -135,4 +137,23 @@ func (h *Handler) HandleUploadAvatar(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, result.Location)
+}
+
+func (h *Handler) HandleGetUserById(c echo.Context) error {
+	userId := c.Param("id")
+
+	// Convert userId to integer
+	userIdInt, err := strconv.Atoi(userId)
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	u, err := h.store.GetProfileByUserId(userIdInt)
+	if err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	return c.JSON(http.StatusOK, u)
 }
