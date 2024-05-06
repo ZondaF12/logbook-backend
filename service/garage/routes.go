@@ -21,14 +21,14 @@ import (
 type Handler struct {
 	store      types.GarageStore
 	userStore  types.UserStore
-	imageStore types.ImageStore
+	mediaStore types.MediaStore
 }
 
-func NewHandler(store types.GarageStore, userStore types.UserStore, imageStore types.ImageStore) *Handler {
+func NewHandler(store types.GarageStore, userStore types.UserStore, mediaStore types.MediaStore) *Handler {
 	return &Handler{
 		store:      store,
 		userStore:  userStore,
-		imageStore: imageStore,
+		mediaStore: mediaStore,
 	}
 }
 
@@ -164,7 +164,7 @@ func (h *Handler) HandleUploadVehicleImage(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "Error uploading image")
 	}
 
-	image := types.Image{
+	media := types.Media{
 		Filename:   file.Filename,
 		FileType:   file.Header.Get("Content-Type"),
 		S3Location: result.Location,
@@ -172,8 +172,8 @@ func (h *Handler) HandleUploadVehicleImage(c echo.Context) error {
 		UserID:     auth.GetUserIDFromContext(c.Request().Context()),
 	}
 
-	// Add image to database
-	err = h.imageStore.AddNewImage(image)
+	// Add media to database
+	err = h.mediaStore.AddNewVehicleMedia(media)
 	if err != nil {
 		log.Printf("error: %v", err)
 		return c.JSON(http.StatusInternalServerError, err)

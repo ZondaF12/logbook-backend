@@ -7,7 +7,8 @@ import (
 
 	"github.com/ZondaF12/logbook-backend/service/follower"
 	"github.com/ZondaF12/logbook-backend/service/garage"
-	"github.com/ZondaF12/logbook-backend/service/image"
+	"github.com/ZondaF12/logbook-backend/service/logbook"
+	"github.com/ZondaF12/logbook-backend/service/media"
 	"github.com/ZondaF12/logbook-backend/service/profile"
 	"github.com/ZondaF12/logbook-backend/service/user"
 	"github.com/ZondaF12/logbook-backend/service/vehicle"
@@ -46,14 +47,18 @@ func (s *APIServer) Start() error {
 	followHandler := follower.NewHandler(followStore, userStore)
 	followHandler.RegisterRoutes(subrouter)
 
-	imageStore := image.NewStore(s.db)
+	mediaStore := media.NewStore(s.db)
 
 	garageStore := garage.NewStore(s.db)
-	garageHandler := garage.NewHandler(garageStore, userStore, imageStore)
+	garageHandler := garage.NewHandler(garageStore, userStore, mediaStore)
 	garageHandler.RegisterRoutes(subrouter)
 
 	vehicleHandler := vehicle.NewHandler(userStore)
 	vehicleHandler.RegisterRoutes(subrouter)
+
+	logbookStore := logbook.NewStore(s.db)
+	logHandler := logbook.NewHandler(logbookStore, userStore, garageStore, mediaStore)
+	logHandler.RegisterRoutes(subrouter)
 
 	log.Println("Starting server on", s.addr)
 	return http.ListenAndServe(s.addr, e)

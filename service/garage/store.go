@@ -22,12 +22,12 @@ func (s *Store) GetAuthenticatedUserVehicles(userId int) ([]*types.Vehicle, erro
 			v.*,
 			(
 			SELECT
-				GROUP_CONCAT(i.s3_location)
+				GROUP_CONCAT(m.s3_location)
 			FROM
-				images i
+				media m
 			WHERE
-				i.vehicle_id = v.id
-			) AS images
+				m.vehicle_id = v.id
+			) AS media
 		FROM
 			vehicles v
 		WHERE
@@ -116,7 +116,22 @@ func (s *Store) CheckVehicleAdded(userId int, registration string) (bool, error)
 }
 
 func (s *Store) GetVehicleByID(vehicleId int) (*types.Vehicle, error) {
-	rows, err := s.db.Query("SELECT * FROM vehicles WHERE id = ?", vehicleId)
+	rows, err := s.db.Query(`SELECT
+			v.*,
+			(
+			SELECT
+				GROUP_CONCAT(m.s3_location)
+			FROM
+				media m
+			WHERE
+				m.vehicle_id = v.id
+			) AS media
+		FROM
+			vehicles v
+		WHERE
+			v.id = ?
+		ORDER BY
+			v.created_at`, vehicleId)
 	if err != nil {
 		return nil, err
 	}

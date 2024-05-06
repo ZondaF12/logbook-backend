@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `images` (
+CREATE TABLE IF NOT EXISTS `media` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,  -- Unique identifier for each image record
   `filename` VARCHAR(255) NOT NULL,  -- Name of the image file
   `file_type` VARCHAR(100) NOT NULL,  -- MIME type of the file
@@ -7,8 +7,11 @@ CREATE TABLE IF NOT EXISTS `images` (
   
   `user_id` INT UNSIGNED,
   `vehicle_id` INT UNSIGNED,
+  `log_id` INT UNSIGNED,
+
 
   PRIMARY KEY (id),
   FOREIGN KEY (user_id) REFERENCES auth(id),
-  FOREIGN KEY (vehicle_id) REFERENCES vehicles(id)
+  FOREIGN KEY (vehicle_id) REFERENCES vehicles(id),
+  FOREIGN KEY (log_id) REFERENCES logs(id)
 )

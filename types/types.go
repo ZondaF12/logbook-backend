@@ -28,8 +28,13 @@ type GarageStore interface {
 	CheckVehicleAdded(userId int, registration string) (bool, error)
 }
 
-type ImageStore interface {
-	AddNewImage(image Image) error
+type MediaStore interface {
+	AddNewVehicleMedia(Media) error
+	AddNewLogMedia(Media) error
+}
+
+type LogbookStore interface {
+	CreateLog(CreateLogPayload) (int64, error)
 }
 
 type RegisterAuthPayload struct {
@@ -105,7 +110,7 @@ type NewVehiclePostData struct {
 
 type Vehicle struct {
 	ID            string    `json:"id,omitempty"`
-	UserID        string    `json:"user_id,omitempty"`
+	UserID        int       `json:"user_id,omitempty"`
 	Registration  string    `json:"registration,omitempty"`
 	Color         string    `json:"color,omitempty"`
 	Description   string    `json:"description,omitempty"`
@@ -179,7 +184,7 @@ type MotTests struct {
 	RfrAndComments []any  `json:"rfrAndComments"`
 }
 
-type Image struct {
+type Media struct {
 	ID         int       `json:"id"`
 	Filename   string    `json:"filename"`
 	FileType   string    `json:"file_type"`
@@ -187,4 +192,27 @@ type Image struct {
 	UploadedAt time.Time `json:"uploaded_at"`
 	UserID     int       `json:"user_id,omitempty"`
 	VehicleID  int       `json:"vehicle_id,omitempty"`
+	LogID      int       `json:"log_id,omitempty"`
+}
+
+type CreateLogPayload struct {
+	VehicleId   int     `json:"vehicle_id" validate:"required"`
+	Title       string  `json:"title" validate:"required,min=3,max=100"`
+	Category    int     `json:"category" validate:"required"`
+	Date        string  `json:"date" validate:"required"`
+	Description string  `json:"description"`
+	Notes       string  `json:"notes"`
+	Cost        float32 `json:"cost"`
+}
+
+type Log struct {
+	ID          int       `json:"id"`
+	VehicleID   int       `json:"vehicle_id"`
+	Title       string    `json:"title"`
+	Category    int       `json:"category"`
+	Date        string    `json:"date"`
+	Description string    `json:"description"`
+	Notes       string    `json:"notes"`
+	Cost        float32   `json:"cost"`
+	CreatedAt   time.Time `json:"created_at"`
 }
