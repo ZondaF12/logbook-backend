@@ -164,12 +164,14 @@ func (h *Handler) HandleUploadVehicleImage(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "Error uploading image")
 	}
 
+	fileType := file.Header.Get("Content-Type")
+	userID := auth.GetUserIDFromContext(c.Request().Context())
 	media := types.Media{
-		Filename:   file.Filename,
-		FileType:   file.Header.Get("Content-Type"),
-		S3Location: result.Location,
-		VehicleID:  vehicleId,
-		UserID:     auth.GetUserIDFromContext(c.Request().Context()),
+		Filename:   &file.Filename,
+		FileType:   &fileType,
+		S3Location: &result.Location,
+		VehicleID:  &vehicleId,
+		UserID:     &userID,
 	}
 
 	// Add media to database

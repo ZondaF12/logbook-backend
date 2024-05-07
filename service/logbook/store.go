@@ -32,3 +32,73 @@ func (s *Store) CreateLog(log types.CreateLogPayload) (int64, error) {
 
 	return id, nil
 }
+
+func scanRowIntoLogWithMedia(rows *sql.Rows) (*types.Log, *types.LogMedia, error) {
+	var logbook types.Log
+	var media types.LogMedia
+
+	err := rows.Scan(
+		&logbook.ID,
+		&logbook.VehicleID,
+		&logbook.Category,
+		&logbook.Title,
+		&logbook.Date,
+		&logbook.Description,
+		&logbook.Notes,
+		&logbook.Cost,
+		&logbook.CreatedAt,
+		&media.Filename,
+		&media.FileType,
+		&media.S3Location,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &logbook, &media, nil
+}
+
+func (s *Store) GetLogsByVehicleId(vehicleId int) ([]*types.Log, error) {
+	rows, err := s.db.Query(`
+		SELECT
+			logs.*,
+			media.filename,
+			media.file_type,
+			media.s3_location
+		FROM logs
+		LEFT JOIN media
+			ON logs.id = media.log_id
+		WHERE logs.vehicle_id = ?
+		ORDER BY logs.created_at DESC`, vehicleId)
+	if err != nil {
+		return nil, err
+	}
+
+	logs := make(map[int]*types.Log)
+
+	for rows.Next() {
+		log, media, err := scanRowIntoLogWithMedia(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		// If log does not exist in map, create it
+		if _, ok := logs[log.ID]; !ok {
+			log.Media = []*types.LogMedia{}
+			logs[log.ID] = log
+		}
+
+		// If media ID is not nil, add media to log
+		if media.Filename != nil {
+			logs[log.ID].Media = append(logs[log.ID].Media, media)
+		}
+	}
+
+	// Convert map to slice
+	logSlice := make([]*types.Log, 0, len(logs))
+	for _, log := range logs {
+		logSlice = append(logSlice, log)
+	}
+
+	return logSlice, nil
+}

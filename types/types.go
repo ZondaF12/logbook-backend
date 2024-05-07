@@ -35,6 +35,7 @@ type MediaStore interface {
 
 type LogbookStore interface {
 	CreateLog(CreateLogPayload) (int64, error)
+	GetLogsByVehicleId(vehicleId int) ([]*Log, error)
 }
 
 type RegisterAuthPayload struct {
@@ -185,14 +186,14 @@ type MotTests struct {
 }
 
 type Media struct {
-	ID         int       `json:"id"`
-	Filename   string    `json:"filename"`
-	FileType   string    `json:"file_type"`
-	S3Location string    `json:"s3_location"`
-	UploadedAt time.Time `json:"uploaded_at"`
-	UserID     int       `json:"user_id,omitempty"`
-	VehicleID  int       `json:"vehicle_id,omitempty"`
-	LogID      int       `json:"log_id,omitempty"`
+	ID         *int       `json:"id"`
+	Filename   *string    `json:"filename"`
+	FileType   *string    `json:"file_type"`
+	S3Location *string    `json:"s3_location"`
+	UploadedAt *time.Time `json:"uploaded_at"`
+	UserID     *int       `json:"user_id,omitempty"`
+	VehicleID  *int       `json:"vehicle_id,omitempty"`
+	LogID      *int       `json:"log_id,omitempty"`
 }
 
 type CreateLogPayload struct {
@@ -206,13 +207,20 @@ type CreateLogPayload struct {
 }
 
 type Log struct {
-	ID          int       `json:"id"`
-	VehicleID   int       `json:"vehicle_id"`
-	Title       string    `json:"title"`
-	Category    int       `json:"category"`
-	Date        string    `json:"date"`
-	Description string    `json:"description"`
-	Notes       string    `json:"notes"`
-	Cost        float32   `json:"cost"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          int         `json:"id"`
+	VehicleID   int         `json:"vehicle_id"`
+	Title       string      `json:"title"`
+	Category    int         `json:"category"`
+	Date        string      `json:"date"`
+	Description string      `json:"description"`
+	Notes       string      `json:"notes"`
+	Cost        float32     `json:"cost"`
+	CreatedAt   time.Time   `json:"created_at"`
+	Media       []*LogMedia `json:"media"`
+}
+
+type LogMedia struct {
+	Filename   *string `json:"filename"`
+	FileType   *string `json:"file_type"`
+	S3Location *string `json:"s3_location"`
 }

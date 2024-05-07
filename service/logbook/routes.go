@@ -80,7 +80,37 @@ func (h *Handler) HandleCreateLog(c echo.Context) error {
 }
 
 func (h *Handler) HandleGetVehicleLogs(c echo.Context) error {
-	return nil
+	// Get user ID from JWT
+	userId := auth.GetUserIDFromContext(c.Request().Context())
+
+	// Get vehicle ID
+	id := c.Param("vehicleId")
+	vehicleId, err := strconv.Atoi(id)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, "Error converting vehicle ID")
+	}
+
+	// Get vehicle from database
+	vehicle, err := h.garageStore.GetVehicleByID(vehicleId)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	// Check if user owns the vehicle
+	if vehicle.UserID != userId {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Errorf("user does not own vehicle"))
+	}
+
+	// Get logs from database
+	logs, err := h.store.GetLogsByVehicleId(vehicleId)
+	if err != nil {
+		log.Printf("error: %v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, logs)
 }
 
 func (h *Handler) HandleUploadLogMedia(c echo.Context) error {
@@ -124,11 +154,12 @@ func (h *Handler) HandleUploadLogMedia(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "Error uploading image")
 	}
 
+	fileType := file.Header.Get("Content-Type")
 	media := types.Media{
-		Filename:   file.Filename,
-		FileType:   file.Header.Get("Content-Type"),
-		S3Location: result.Location,
-		LogID:      logbookId,
+		Filename:   &file.Filename,
+		FileType:   &fileType,
+		S3Location: &result.Location,
+		LogID:      &logbookId,
 	}
 
 	// Add media to database
