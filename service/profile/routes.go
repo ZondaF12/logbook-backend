@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ZondaF12/logbook-backend/service/auth"
 	"github.com/ZondaF12/logbook-backend/types"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -141,13 +141,7 @@ func (h *Handler) HandleUploadAvatar(c echo.Context) error {
 
 func (h *Handler) HandleGetUserById(c echo.Context) error {
 	userId := c.Param("id")
-
-	// Convert userId to integer
-	userIdInt, err := strconv.Atoi(userId)
-	if err != nil {
-		fmt.Println(err)
-		return c.JSON(http.StatusBadRequest, err)
-	}
+	userIdInt := uuid.MustParse(userId)
 
 	u, err := h.store.GetProfileByUserId(userIdInt)
 	if err != nil {

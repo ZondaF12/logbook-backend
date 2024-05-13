@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -16,8 +17,8 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-func (s *Store) FollowUser(followerId, followingId int) error {
-	_, err := s.db.Exec(`INSERT INTO followers (follower_id, following_id) VALUES (?, ?)`, followerId, followingId)
+func (s *Store) FollowUser(followerId, followingId uuid.UUID) error {
+	_, err := s.db.Exec(`INSERT INTO followers (id, follower_id, following_id) VALUES (?, ?, ?)`, uuid.New(), followerId, followingId)
 	if err != nil {
 		return err
 	}
@@ -25,7 +26,7 @@ func (s *Store) FollowUser(followerId, followingId int) error {
 	return nil
 }
 
-func (s *Store) UnfollowUser(followerId, followingId int) error {
+func (s *Store) UnfollowUser(followerId, followingId uuid.UUID) error {
 	_, err := s.db.Exec(`DELETE FROM followers WHERE follower_id = ? AND following_id = ?`, followerId, followingId)
 	if err != nil {
 		return err
@@ -50,7 +51,7 @@ func scanRowIntoFollower(rows *sql.Rows) (*types.Follower, error) {
 	return user, nil
 }
 
-func (s *Store) GetFollower(followerId, followingId int) (*types.Follower, error) {
+func (s *Store) GetFollower(followerId, followingId uuid.UUID) (*types.Follower, error) {
 	rows, err := s.db.Query(`SELECT * FROM followers WHERE follower_id = ? AND following_id = ?`, followerId, followingId)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func (s *Store) GetFollower(followerId, followingId int) (*types.Follower, error
 		}
 	}
 
-	if f.ID == 0 {
+	if f.ID == uuid.Nil {
 		return nil, nil
 	}
 

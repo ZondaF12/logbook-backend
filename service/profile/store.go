@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -17,7 +18,7 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-func (s *Store) GetProfileByUserId(userId int) (*types.Profile, error) {
+func (s *Store) GetProfileByUserId(userId uuid.UUID) (*types.Profile, error) {
 	rows, err := s.db.Query(`
 	SELECT
 		p.*,
@@ -40,7 +41,7 @@ func (s *Store) GetProfileByUserId(userId int) (*types.Profile, error) {
 		}
 	}
 
-	if u.ID == 0 {
+	if u.ID == uuid.Nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
@@ -69,7 +70,7 @@ func scanRowIntoUser(rows *sql.Rows) (*types.Profile, error) {
 }
 
 func (s *Store) CreateProfile(u types.Profile) error {
-	_, err := s.db.Exec("INSERT INTO profiles (user_id, username, name) VALUES (?, ?, ?)", u.UserID, u.Username, u.Name)
+	_, err := s.db.Exec("INSERT INTO profiles (id, user_id, username, name) VALUES (?, ?, ?, ?)", uuid.New(), u.UserID, u.Username, u.Name)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func (s *Store) CreateProfile(u types.Profile) error {
 	return nil
 }
 
-func (s *Store) UpdateAvatar(userId int, avatar string) error {
+func (s *Store) UpdateAvatar(userId uuid.UUID, avatar string) error {
 	_, err := s.db.Exec("UPDATE profiles SET avatar = ? WHERE user_id = ?", avatar, userId)
 	if err != nil {
 		return err

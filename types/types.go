@@ -1,31 +1,35 @@
 package types
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type UserStore interface {
 	GetUserByEmail(email string) (*User, error)
-	GetUserByID(id int) (*User, error)
+	GetUserByID(id uuid.UUID) (*User, error)
 	CreateUser(User) error
 }
 
 type ProfileStore interface {
-	GetProfileByUserId(userId int) (*Profile, error)
+	GetProfileByUserId(userId uuid.UUID) (*Profile, error)
 	CreateProfile(Profile) error
-	UpdateAvatar(userId int, avatar string) error
+	UpdateAvatar(userId uuid.UUID, avatar string) error
 }
 
 type FollowerStore interface {
-	FollowUser(followerId, followingId int) error
-	UnfollowUser(followerId, followingId int) error
-	GetFollower(followerId, followingId int) (*Follower, error)
+	FollowUser(followerId, followingId uuid.UUID) error
+	UnfollowUser(followerId, followingId uuid.UUID) error
+	GetFollower(followerId, followingId uuid.UUID) (*Follower, error)
 }
 
 type GarageStore interface {
-	GetVehicleByID(id int) (*Vehicle, error)
-	GetAuthenticatedUserVehicles(userID int) ([]*Vehicle, error)
-	GetVehicleByRegistration(userId int, registration string) (*Vehicle, error)
-	AddUserVehicle(userID int, vehicle NewVehiclePostData) (int64, error)
-	CheckVehicleAdded(userId int, registration string) (bool, error)
+	GetVehicleByID(id uuid.UUID) (*Vehicle, error)
+	GetAuthenticatedUserVehicles(userID uuid.UUID) ([]*Vehicle, error)
+	GetVehicleByRegistration(userId uuid.UUID, registration string) (*Vehicle, error)
+	AddUserVehicle(userID uuid.UUID, vehicle NewVehiclePostData) (uuid.UUID, error)
+	CheckVehicleAdded(userId uuid.UUID, registration string) (bool, error)
 }
 
 type MediaStore interface {
@@ -34,8 +38,8 @@ type MediaStore interface {
 }
 
 type LogbookStore interface {
-	CreateLog(CreateLogPayload) (int64, error)
-	GetLogsByVehicleId(vehicleId int) ([]*Log, error)
+	CreateLog(CreateLogPayload) (uuid.UUID, error)
+	GetLogsByVehicleId(vehicleId uuid.UUID) ([]*Log, error)
 }
 
 type RegisterAuthPayload struct {
@@ -49,14 +53,14 @@ type LoginAuthPayload struct {
 }
 
 type Auth struct {
-	ID        int       `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type User struct {
-	ID        int       `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
@@ -67,15 +71,15 @@ type User struct {
 }
 
 type Profile struct {
-	ID        int    `json:"id"`
-	UserID    int    `json:"user_id"`
-	Username  string `json:"username"`
-	Name      string `json:"name"`
-	Bio       string `json:"bio"`
-	Avatar    string `json:"avatar"`
-	Public    bool   `json:"public"`
-	Followers int    `json:"followers"`
-	Following int    `json:"following"`
+	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"user_id"`
+	Username  string    `json:"username"`
+	Name      string    `json:"name"`
+	Bio       string    `json:"bio"`
+	Avatar    string    `json:"avatar"`
+	Public    bool      `json:"public"`
+	Followers int       `json:"followers"`
+	Following int       `json:"following"`
 }
 
 type CreateProfilePayload struct {
@@ -84,14 +88,14 @@ type CreateProfilePayload struct {
 }
 
 type Follower struct {
-	ID          int       `json:"id"`
-	FollowerID  int       `json:"follower_i"`
-	FollowingID int       `json:"following_id"`
+	ID          uuid.UUID `json:"id"`
+	FollowerID  uuid.UUID `json:"follower_i"`
+	FollowingID uuid.UUID `json:"following_id"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 type FollowUserPayload struct {
-	UserID int `json:"user_id" validate:"required"`
+	UserID uuid.UUID `json:"user_id" validate:"required"`
 }
 
 type NewVehiclePostData struct {
@@ -110,8 +114,8 @@ type NewVehiclePostData struct {
 }
 
 type Vehicle struct {
-	ID            string    `json:"id,omitempty"`
-	UserID        int       `json:"user_id,omitempty"`
+	ID            uuid.UUID `json:"id,omitempty"`
+	UserID        uuid.UUID `json:"user_id,omitempty"`
 	Registration  string    `json:"registration,omitempty"`
 	Color         string    `json:"color,omitempty"`
 	Description   string    `json:"description,omitempty"`
@@ -186,29 +190,29 @@ type MotTests struct {
 }
 
 type Media struct {
-	ID         *int       `json:"id"`
+	ID         *uuid.UUID `json:"id"`
 	Filename   *string    `json:"filename"`
 	FileType   *string    `json:"file_type"`
 	S3Location *string    `json:"s3_location"`
 	UploadedAt *time.Time `json:"uploaded_at"`
-	UserID     *int       `json:"user_id,omitempty"`
-	VehicleID  *int       `json:"vehicle_id,omitempty"`
-	LogID      *int       `json:"log_id,omitempty"`
+	UserID     *uuid.UUID `json:"user_id,omitempty"`
+	VehicleID  *uuid.UUID `json:"vehicle_id,omitempty"`
+	LogID      *uuid.UUID `json:"log_id,omitempty"`
 }
 
 type CreateLogPayload struct {
-	VehicleId   int     `json:"vehicle_id" validate:"required"`
-	Title       string  `json:"title" validate:"required,min=3,max=100"`
-	Category    int     `json:"category" validate:"required"`
-	Date        string  `json:"date" validate:"required"`
-	Description string  `json:"description"`
-	Notes       string  `json:"notes"`
-	Cost        float32 `json:"cost"`
+	VehicleId   uuid.UUID `json:"vehicle_id"`
+	Title       string    `json:"title" validate:"required,min=3,max=100"`
+	Category    int       `json:"category" validate:"required"`
+	Date        string    `json:"date" validate:"required"`
+	Description string    `json:"description"`
+	Notes       string    `json:"notes"`
+	Cost        float32   `json:"cost"`
 }
 
 type Log struct {
-	ID          int         `json:"id"`
-	VehicleID   int         `json:"vehicle_id"`
+	ID          uuid.UUID   `json:"id"`
+	VehicleID   uuid.UUID   `json:"vehicle_id"`
 	Title       string      `json:"title"`
 	Category    int         `json:"category"`
 	Date        string      `json:"date"`

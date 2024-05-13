@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -16,21 +17,17 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-func (s *Store) CreateLog(log types.CreateLogPayload) (int64, error) {
-	newLog, err := s.db.Exec(`INSERT INTO logs 
-		(vehicle_id, category, title, date, description, notes, cost) 
-		VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		log.VehicleId, log.Category, log.Title, log.Date, log.Description, log.Notes, log.Cost)
+func (s *Store) CreateLog(log types.CreateLogPayload) (uuid.UUID, error) {
+	newLogId := uuid.New()
+	_, err := s.db.Exec(`INSERT INTO logs 
+		(id, vehicle_id, category, title, date, description, notes, cost) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		newLogId, log.VehicleId, log.Category, log.Title, log.Date, log.Description, log.Notes, log.Cost)
 	if err != nil {
-		return 0, err
+		return uuid.Nil, err
 	}
 
-	id, err := newLog.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
+	return newLogId, nil
 }
 
 func scanRowIntoLogWithMedia(rows *sql.Rows) (*types.Log, *types.LogMedia, error) {
@@ -58,7 +55,7 @@ func scanRowIntoLogWithMedia(rows *sql.Rows) (*types.Log, *types.LogMedia, error
 	return &logbook, &media, nil
 }
 
-func (s *Store) GetLogsByVehicleId(vehicleId int) ([]*types.Log, error) {
+func (s *Store) GetLogsByVehicleId(vehicleId uuid.UUID) ([]*types.Log, error) {
 	rows, err := s.db.Query(`
 		SELECT
 			logs.*,
@@ -74,7 +71,7 @@ func (s *Store) GetLogsByVehicleId(vehicleId int) ([]*types.Log, error) {
 		return nil, err
 	}
 
-	logs := make(map[int]*types.Log)
+	logs := make(map[string]*types.Log)
 
 	for rows.Next() {
 		log, media, err := scanRowIntoLogWithMedia(rows)
@@ -82,15 +79,17 @@ func (s *Store) GetLogsByVehicleId(vehicleId int) ([]*types.Log, error) {
 			return nil, err
 		}
 
+		logID := log.ID.String()
+
 		// If log does not exist in map, create it
-		if _, ok := logs[log.ID]; !ok {
+		if _, ok := logs[logID]; !ok {
 			log.Media = []*types.LogMedia{}
-			logs[log.ID] = log
+			logs[logID] = log
 		}
 
 		// If media ID is not nil, add media to log
 		if media.Filename != nil {
-			logs[log.ID].Media = append(logs[log.ID].Media, media)
+			logs[logID].Media = append(logs[logID].Media, media)
 		}
 	}
 

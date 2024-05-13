@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -17,7 +18,7 @@ func NewStore(db *sql.DB) *Store {
 	}
 }
 
-func (s *Store) GetAuthenticatedUserVehicles(userId int) ([]*types.Vehicle, error) {
+func (s *Store) GetAuthenticatedUserVehicles(userId uuid.UUID) ([]*types.Vehicle, error) {
 	rows, err := s.db.Query(`SELECT
 			v.*,
 			(
@@ -81,7 +82,7 @@ func scanRowIntoVehicle(rows *sql.Rows) (*types.Vehicle, error) {
 	return vehicle, nil
 }
 
-func (s *Store) GetVehicleByRegistration(userId int, registration string) (*types.Vehicle, error) {
+func (s *Store) GetVehicleByRegistration(userId uuid.UUID, registration string) (*types.Vehicle, error) {
 	rows, err := s.db.Query("SELECT * FROM vehicles WHERE user_id = ? AND registration = ?", userId, registration)
 	if err != nil {
 		return nil, err
@@ -98,7 +99,7 @@ func (s *Store) GetVehicleByRegistration(userId int, registration string) (*type
 	return vehicle, nil
 }
 
-func (s *Store) CheckVehicleAdded(userId int, registration string) (bool, error) {
+func (s *Store) CheckVehicleAdded(userId uuid.UUID, registration string) (bool, error) {
 	rows, err := s.db.Query("SELECT EXISTS(SELECT 1 FROM vehicles WHERE user_id = ? AND registration = ?)", userId, registration)
 	if err != nil {
 		return false, err
@@ -115,7 +116,7 @@ func (s *Store) CheckVehicleAdded(userId int, registration string) (bool, error)
 	return exists, nil
 }
 
-func (s *Store) GetVehicleByID(vehicleId int) (*types.Vehicle, error) {
+func (s *Store) GetVehicleByID(vehicleId uuid.UUID) (*types.Vehicle, error) {
 	rows, err := s.db.Query(`SELECT
 			v.*,
 			(
@@ -147,18 +148,14 @@ func (s *Store) GetVehicleByID(vehicleId int) (*types.Vehicle, error) {
 	return vehicle, nil
 }
 
-func (s *Store) AddUserVehicle(userId int, vehicle types.NewVehiclePostData) (int64, error) {
-	res, err := s.db.Exec("INSERT INTO vehicles (user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
+func (s *Store) AddUserVehicle(userId uuid.UUID, vehicle types.NewVehiclePostData) (uuid.UUID, error) {
+	newVehicleId := uuid.New()
+	_, err := s.db.Exec("INSERT INTO vehicles (id, user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", newVehicleId, userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
 
 	if err != nil {
 		fmt.Println(err)
-		return 0, err
+		return uuid.Nil, err
 	}
 
-	vehicleId, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return vehicleId, nil
+	return newVehicleId, nil
 }

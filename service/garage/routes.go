@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ZondaF12/logbook-backend/service/auth"
 	"github.com/ZondaF12/logbook-backend/types"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -57,6 +57,7 @@ func (h *Handler) HandleAddVehicleToGarage(c echo.Context) error {
 	}
 
 	// Get user ID from JWT
+	fmt.Println("Getting user ID from context")
 	userId := auth.GetUserIDFromContext(c.Request().Context())
 
 	// Check if vehicle is already added
@@ -76,7 +77,7 @@ func (h *Handler) HandleAddVehicleToGarage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, map[string]int64{"vehicle_id": vehicleId})
+	return c.JSON(http.StatusCreated, map[string]string{"vehicle_id": vehicleId.String()})
 }
 
 func (h *Handler) HandleGetUserGarage(c echo.Context) error {
@@ -124,12 +125,9 @@ func (h *Handler) HandleCheckVehicleExistsInGarage(c echo.Context) error {
 }
 
 func (h *Handler) HandleUploadVehicleImage(c echo.Context) error {
+	fmt.Println("Uploading image")
 	id := c.Param("id")
-	vehicleId, err := strconv.Atoi(id)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return c.JSON(http.StatusInternalServerError, "Error converting vehicle ID")
-	}
+	vehicleId := uuid.MustParse(id)
 
 	// Get avatar file
 	file, err := c.FormFile("image")

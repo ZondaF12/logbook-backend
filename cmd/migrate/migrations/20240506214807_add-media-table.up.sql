@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS `media` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,  -- Unique identifier for each image record
+  `id` CHAR(36) NOT NULL,  -- Unique identifier for each image record
   `filename` VARCHAR(255) NOT NULL,  -- Name of the image file
   `file_type` VARCHAR(100) NOT NULL,  -- MIME type of the file
   `s3_location` VARCHAR(500) NOT NULL,  -- S3 URL or path to the image
   `uploaded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp when the image was uploaded
   
-  `user_id` INT UNSIGNED,
-  `vehicle_id` INT UNSIGNED,
-  `log_id` INT UNSIGNED,
+  `user_id` CHAR(36),
+  `vehicle_id` CHAR(36),
+  `log_id` CHAR(36),
 
 
   PRIMARY KEY (id),

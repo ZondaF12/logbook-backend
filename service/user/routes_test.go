@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -69,7 +70,7 @@ func (m *mockUserStore) GetUserByEmail(email string) (*types.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 
-func (m *mockUserStore) GetUserByID(id int) (*types.User, error) {
+func (m *mockUserStore) GetUserByID(id uuid.UUID) (*types.User, error) {
 	return nil, nil
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/ZondaF12/logbook-backend/service/auth"
 	"github.com/ZondaF12/logbook-backend/types"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -76,7 +76,7 @@ func (h *Handler) HandleCreateLog(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]int64{"log_id": logId})
+	return c.JSON(http.StatusOK, map[string]string{"log_id": logId.String()})
 }
 
 func (h *Handler) HandleGetVehicleLogs(c echo.Context) error {
@@ -85,11 +85,7 @@ func (h *Handler) HandleGetVehicleLogs(c echo.Context) error {
 
 	// Get vehicle ID
 	id := c.Param("vehicleId")
-	vehicleId, err := strconv.Atoi(id)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return c.JSON(http.StatusInternalServerError, "Error converting vehicle ID")
-	}
+	vehicleId := uuid.MustParse(id)
 
 	// Get vehicle from database
 	vehicle, err := h.garageStore.GetVehicleByID(vehicleId)
@@ -115,11 +111,7 @@ func (h *Handler) HandleGetVehicleLogs(c echo.Context) error {
 
 func (h *Handler) HandleUploadLogMedia(c echo.Context) error {
 	id := c.Param("logId")
-	logbookId, err := strconv.Atoi(id)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return c.JSON(http.StatusInternalServerError, "Error converting logbook ID")
-	}
+	logbookId := uuid.MustParse(id)
 
 	// Get avatar file
 	file, err := c.FormFile("media")

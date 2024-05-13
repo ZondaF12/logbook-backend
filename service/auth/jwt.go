@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ZondaF12/logbook-backend/config"
 	"github.com/ZondaF12/logbook-backend/types"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,11 +18,11 @@ type contextKey string
 
 const UserKey contextKey = "userId"
 
-func CreateJWT(secret []byte, userID int) (string, error) {
+func CreateJWT(secret []byte, userID uuid.UUID) (string, error) {
 	expiration := time.Second * time.Duration(config.Envs.JWTExpirationInSeconds)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userId":    strconv.Itoa(userID),
+		"userId":    userID,
 		"expiredAt": time.Now().Add(expiration).Unix(),
 	})
 
@@ -54,11 +54,9 @@ func WithJWTAuth(next echo.HandlerFunc, store types.UserStore) echo.HandlerFunc 
 
 		// Get User ID from JWT Token if valid
 		claims := token.Claims.(jwt.MapClaims)
-		str := claims["userId"].(string)
+		userId := claims["userId"].(string)
 
-		userId, _ := strconv.Atoi(str)
-
-		u, err := store.GetUserByID(userId)
+		u, err := store.GetUserByID(uuid.MustParse(userId))
 		if err != nil {
 			log.Printf("error getting user: %v", err)
 			return permissionDenied()
@@ -97,10 +95,10 @@ func permissionDenied() error {
 	return echo.NewHTTPError(http.StatusForbidden, fmt.Errorf("permission denied"))
 }
 
-func GetUserIDFromContext(ctx context.Context) int {
-	userId, ok := ctx.Value(UserKey).(int)
+func GetUserIDFromContext(ctx context.Context) uuid.UUID {
+	userId, ok := ctx.Value(UserKey).(uuid.UUID)
 	if !ok {
-		return -1
+		return uuid.Nil
 	}
 
 	return userId

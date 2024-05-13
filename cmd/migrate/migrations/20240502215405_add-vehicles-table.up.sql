@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `vehicles` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_id` INT UNSIGNED NOT NULL,
+  `id` CHAR(36) NOT NULL,
+  `user_id` CHAR(36) NOT NULL,
   `registration` VARCHAR(255) NOT NULL,
   `make` VARCHAR(255) NOT NULL,
   `model` VARCHAR(255) NOT NULL,

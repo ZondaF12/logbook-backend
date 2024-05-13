@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ZondaF12/logbook-backend/types"
+	"github.com/google/uuid"
 )
 
 type Store struct {
@@ -31,7 +32,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 		}
 	}
 
-	if u.ID == 0 {
+	if u.ID == uuid.Nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
@@ -68,14 +69,14 @@ func (s *Store) GetUserByUsername(username string) (*types.User, error) {
 		}
 	}
 
-	if u.ID == 0 {
+	if u.ID == uuid.Nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
 	return u, nil
 }
 
-func (s *Store) GetUserByID(id int) (*types.User, error) {
+func (s *Store) GetUserByID(id uuid.UUID) (*types.User, error) {
 	rows, err := s.db.Query("SELECT * FROM auth WHERE id = ?", id)
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 		}
 	}
 
-	if u.ID == 0 {
+	if u.ID == uuid.Nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
@@ -97,7 +98,7 @@ func (s *Store) GetUserByID(id int) (*types.User, error) {
 }
 
 func (s *Store) CreateUser(u types.User) error {
-	_, err := s.db.Exec("INSERT INTO auth (email, password) VALUES (?, ?)", u.Email, u.Password)
+	_, err := s.db.Exec("INSERT INTO auth (id, email, password) VALUES (?, ?, ?)", uuid.New(), u.Email, u.Password)
 	if err != nil {
 		return err
 	}

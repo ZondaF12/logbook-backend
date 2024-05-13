@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `followers` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `follower_id` INT UNSIGNED NOT NULL,
-  `following_id` INT UNSIGNED NOT NULL,
+  `id` CHAR(36) NOT NULL,
+  `follower_id` CHAR(36) NOT NULL,
+  `following_id` CHAR(36) NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   PRIMARY KEY (id),

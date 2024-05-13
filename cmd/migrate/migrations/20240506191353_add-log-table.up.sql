@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `logs` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `vehicle_id` INT UNSIGNED NOT NULL,
+  `id` CHAR(36) NOT NULL,
+  `vehicle_id` CHAR(36) NOT NULL,
   `category` INT NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `date` VARCHAR(255) NOT NULL,
