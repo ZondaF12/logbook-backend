@@ -150,7 +150,7 @@ func (s *Store) GetVehicleByID(vehicleId uuid.UUID) (*types.Vehicle, error) {
 
 func (s *Store) AddUserVehicle(userId uuid.UUID, vehicle types.NewVehiclePostData) (uuid.UUID, error) {
 	newVehicleId := uuid.New()
-	_, err := s.db.Exec("INSERT INTO vehicles (id, user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", newVehicleId, userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, 0, vehicle.Nickname)
+	_, err := s.db.Exec("INSERT INTO vehicles (id, user_id, registration, make, model, year, engine_size, color, registered, tax_date, mot_date, insurance_date, service_date, description, milage, nickname) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", newVehicleId, userId, vehicle.Registration, vehicle.Make, vehicle.Model, vehicle.Year, vehicle.EngineSize, vehicle.Color, vehicle.Registered, vehicle.TaxDate, vehicle.MotDate, "", "", vehicle.Description, vehicle.Mileage, vehicle.Nickname)
 
 	if err != nil {
 		fmt.Println(err)

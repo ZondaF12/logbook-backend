@@ -111,6 +111,7 @@ type NewVehiclePostData struct {
 	TaxDate      string   `json:"tax_date"`
 	MotDate      string   `json:"mot_date"`
 	Nickname     string   `json:"nickname"`
+	Mileage      uint32   `json:"mileage"`
 }
 
 type Vehicle struct {
@@ -144,6 +145,7 @@ type VehicleInfoRequestData struct {
 	MotDate      string `json:"mot_date"`
 	Registered   string `json:"registered"`
 	Year         uint16 `json:"year"`
+	Mileage      uint32 `json:"mileage"`
 }
 
 type VehicleData struct {

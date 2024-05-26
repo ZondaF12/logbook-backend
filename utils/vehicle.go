@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -39,6 +40,17 @@ func FetchVehicleDetails(registration string) (types.VehicleInfoRequestData, err
 		motDate = motData[0].MotTestExpiryDate
 	}
 
+	var mileage uint32
+	if motData[0].MotTests[0].OdometerValue != "" {
+		mileageValue, err := strconv.ParseUint(motData[0].MotTests[0].OdometerValue, 10, 32)
+		if err != nil {
+			return types.VehicleInfoRequestData{}, err
+		}
+		mileage = uint32(mileageValue)
+	} else {
+		mileage = 0
+	}
+
 	var registeredDate string
 	if motData[0].FirstUsedDate != "" {
 		registeredDate = strings.Replace(motData[0].FirstUsedDate, ".", "-", 2)
@@ -61,6 +73,7 @@ func FetchVehicleDetails(registration string) (types.VehicleInfoRequestData, err
 		MotDate:      motDate,
 		Registered:   registeredDate,
 		Year:         uint16(vehicleData.YearOfManufacture),
+		Mileage:      mileage,
 	}
 
 	return newVehicle, nil
