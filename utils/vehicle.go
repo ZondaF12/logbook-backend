@@ -41,7 +41,7 @@ func FetchVehicleDetails(registration string) (types.VehicleInfoRequestData, err
 	}
 
 	var mileage uint32
-	if motData[0].MotTests[0].OdometerValue != "" {
+	if motData[0].MotTests != nil {
 		mileageValue, err := strconv.ParseUint(motData[0].MotTests[0].OdometerValue, 10, 32)
 		if err != nil {
 			return types.VehicleInfoRequestData{}, err
