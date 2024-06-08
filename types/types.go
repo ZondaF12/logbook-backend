@@ -30,6 +30,7 @@ type GarageStore interface {
 	GetVehicleByRegistration(userId uuid.UUID, registration string) (*Vehicle, error)
 	AddUserVehicle(userID uuid.UUID, vehicle NewVehiclePostData) (uuid.UUID, error)
 	CheckVehicleAdded(userId uuid.UUID, registration string) (bool, error)
+	UpdateVehicle(userId uuid.UUID, registration string, data UpdateVehiclePatchData) error
 }
 
 type MediaStore interface {
@@ -133,6 +134,17 @@ type Vehicle struct {
 	Nickname      string    `json:"nickname,omitempty"`
 	CreatedAt     time.Time `json:"created_at,omitempty"`
 	Images        string    `json:"images,omitempty"`
+}
+
+type UpdateVehiclePatchData struct {
+	Color         string `json:"color,omitempty"`
+	Description   string `json:"description,omitempty"`
+	MotDate       string `json:"mot_date,omitempty"`
+	InsuranceDate string `json:"insurance_date,omitempty"`
+	ServiceDate   string `json:"service_date,omitempty"`
+	TaxDate       string `json:"tax_date,omitempty"`
+	Mileage       uint32 `json:"mileage,omitempty"`
+	Nickname      string `json:"nickname,omitempty"`
 }
 
 type VehicleInfoRequestData struct {

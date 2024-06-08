@@ -3,6 +3,7 @@ package garage
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/ZondaF12/logbook-backend/types"
 	"github.com/google/uuid"
@@ -158,4 +159,60 @@ func (s *Store) AddUserVehicle(userId uuid.UUID, vehicle types.NewVehiclePostDat
 	}
 
 	return newVehicleId, nil
+}
+
+func (s *Store) UpdateVehicle(userId uuid.UUID, registration string, vehicle types.UpdateVehiclePatchData) error {
+	// Build the SQL query dynamically based on the provided values
+	query := "UPDATE vehicles SET"
+	params := []interface{}{}
+
+	// Check if other fields are provided and add them to the query and params
+	if vehicle.Description != "" {
+		query += " description = ?,"
+		params = append(params, vehicle.Description)
+	}
+	if vehicle.MotDate != "" {
+		query += " mot_date = ?,"
+		params = append(params, vehicle.MotDate)
+	}
+	if vehicle.InsuranceDate != "" {
+		query += " insurance_date = ?,"
+		params = append(params, vehicle.InsuranceDate)
+	}
+	if vehicle.ServiceDate != "" {
+		query += " service_date = ?,"
+		params = append(params, vehicle.ServiceDate)
+	}
+	if vehicle.TaxDate != "" {
+		query += " tax_date = ?,"
+		params = append(params, vehicle.TaxDate)
+	}
+	if vehicle.Mileage != 0 {
+		query += " milage = ?,"
+		params = append(params, vehicle.Mileage)
+	}
+	if vehicle.Nickname != "" {
+		query += " nickname = ?,"
+		params = append(params, vehicle.Nickname)
+	}
+
+	hasTrailingComma := strings.HasSuffix(query, ",")
+	if hasTrailingComma {
+		query = query[:len(query)-1]
+	}
+
+	// Add the WHERE clause to specify the user_id and registration
+	query += " WHERE user_id = ? AND registration = ?"
+	params = append(params, userId, registration)
+
+	fmt.Println(query)
+	fmt.Println(params)
+
+	// Execute the dynamic query with the provided parameters
+	_, err := s.db.Exec(query, params...)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

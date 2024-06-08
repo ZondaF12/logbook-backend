@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(router *echo.Group) {
 	router.POST("/garage/vehicle", auth.WithJWTAuth(h.HandleAddVehicleToGarage, h.userStore))
 	router.GET("/garage", auth.WithJWTAuth(h.HandleGetUserGarage, h.userStore))
 	router.GET("/garage/vehicle/:registration", auth.WithJWTAuth(h.HandleGetVehicleByRegistration, h.userStore))
-	router.PUT("/garage/vehicle/:registration", auth.WithJWTAuth(h.HandleUpdateVehicle, h.userStore))
+	router.PATCH("/garage/vehicle/:registration", auth.WithJWTAuth(h.HandleUpdateVehicle, h.userStore))
 	router.GET("/garage/vehicle/:registration/exists", auth.WithJWTAuth(h.HandleCheckVehicleExistsInGarage, h.userStore))
 	router.POST("/garage/vehicle/:id/uploadImage", auth.WithJWTAuth(h.HandleUploadVehicleImage, h.userStore))
 }
@@ -107,7 +107,29 @@ func (h *Handler) HandleGetVehicleByRegistration(c echo.Context) error {
 }
 
 func (h *Handler) HandleUpdateVehicle(c echo.Context) error {
-	return nil
+	registration := c.Param("registration")
+
+	// Get user ID from JWT
+	userId := auth.GetUserIDFromContext(c.Request().Context())
+
+	// Parse payload
+	var payload types.UpdateVehiclePatchData
+	if err := utils.ParseJSON(c, &payload); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	// Validate payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+	}
+
+	err := h.store.UpdateVehicle(userId, registration, payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, "Vehicle updated")
 }
 
 func (h *Handler) HandleCheckVehicleExistsInGarage(c echo.Context) error {
