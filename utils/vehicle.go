@@ -54,13 +54,15 @@ func FetchVehicleDetails(registration string) (types.VehicleInfoRequestData, err
 	var registeredDate string
 	if motData[0].FirstUsedDate != "" {
 		registeredDate = strings.Replace(motData[0].FirstUsedDate, ".", "-", 2)
-	} else {
+	} else if motDate != "" {
 		date, err := time.Parse("2006-01-02", motDate)
 		if err != nil {
 			fmt.Println(err)
 		}
 
 		registeredDate = date.AddDate(-3, 0, 1).Format("2006-01-02")
+	} else {
+		registeredDate = vehicleData.MonthOfFirstRegistration + "-01"
 	}
 
 	newVehicle := types.VehicleInfoRequestData{
